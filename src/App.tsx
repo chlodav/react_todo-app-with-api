@@ -3,8 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 
-import { UserWarning } from './UserWarning';
-
 const API_URL = 'https://mate.academy/students-api/todos';
 const NATIVE_SET_TIMEOUT =
   typeof window === 'undefined' ? setTimeout : window.setTimeout;
@@ -131,12 +129,13 @@ export const App: React.FC = () => {
     [todos],
   );
 
-  const allTodosCompleted = useMemo(
-    () =>
-      todos.filter(todo => !todo.isTemp).length > 0 &&
-      todos.every(todo => todo.isTemp || todo.completed),
-    [todos],
-  );
+  const allTodosCompleted = useMemo(() => {
+    const nonTempTodos = todos.filter(todo => !todo.isTemp);
+
+    return (
+      nonTempTodos.length > 0 && nonTempTodos.every(todo => todo.completed)
+    );
+  }, [todos]);
 
   const visibleTodos = useMemo(() => {
     return todos.filter(todo => {
@@ -431,17 +430,13 @@ export const App: React.FC = () => {
     }
   };
 
-  if (!userId) {
-    return <UserWarning />;
-  }
-
   return (
     <section className="section container">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todoapp__content">
         <header className="todoapp__header">
-          {todos.length > 0 && (
+          {todos.some(todo => !todo.isTemp) && (
             <button
               type="button"
               className={classNames('todoapp__toggle-all', {
